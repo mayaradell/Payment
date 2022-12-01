@@ -25,10 +25,10 @@ class PayRequest extends FormRequest
     {
         return [
             //
-            'fname'=>'required',
-            'sname'=>'required',
-            'email'=>'required',
-            'phone'=>'required',
+            'FirstName'=>'required',
+            'SecondName'=>'required',
+            'email'=>'required|email',
+            'phone'=>'required|numeric',
 
         ];
     }

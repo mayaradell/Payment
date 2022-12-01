@@ -20,3 +20,7 @@ Route::get('/', function () {
 
 Route::get('/pay-details',[\App\Http\Controllers\PayController::class,'show']);
 Route::post('/store/pay-details',[\App\Http\Controllers\PayController::class,'store'])->name('store.pay');
+
+
+Route::post('/pay',[\App\Http\Controllers\PayController::class,'pay'])->name('payment.pay');
+Route::post('/state',[\App\Http\Controllers\PayController::class,'state'])->name('payment.state');

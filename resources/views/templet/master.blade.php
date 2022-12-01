@@ -36,10 +36,10 @@
                 <form method="POST" action="{{route('store.pay')}}">
                     @csrf
                     <div class="input-group">
-                        <input class="input--style-3" type="text" placeholder="First Name" name="fname">
+                        <input class="input--style-3" type="text" placeholder="First Name" name="FirstName">
                     </div>
                     <div class="input-group">
-                        <input class="input--style-3" type="text" placeholder="Second Name" name="sname">
+                        <input class="input--style-3" type="text" placeholder="Second Name" name="SecondName">
                     </div>
 {{--                    <div class="input-group">--}}
 {{--                        <input class="input--style-3 js-datepicker" type="text" placeholder="Birthdate" name="birthday">--}}
