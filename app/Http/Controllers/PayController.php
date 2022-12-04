@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use AmrShawky\LaravelCurrency\Facade\Currency;
 use App\Http\Requests\PayRequest;
+use App\Models\Discount;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -14,7 +17,7 @@ class PayController extends Controller
     public function show()
     {
 
-        return view('templet.home');
+        return view('template.home');
     }
 
     public function store(PayRequest $request)
@@ -22,13 +25,22 @@ class PayController extends Controller
 
         // store user info in database
 
-        $user=new User();
-        $user ->FirstName=$request ->FirstName;
-        $user ->SecondName=$request ->SecondName;
-        $user ->email=$request ->email;
-        $user ->phone=$request ->phone;
-        $user ->save();
+        $user = User::create($request->all());
 
+        $dollar_today = Currency::convert()->from('USD')->to('EGP')->get();
+        $code = Discount::where('code', $request->promocode)->first();
+        $price = 200 * $dollar_today - ($code->value / 100) * 200 * $dollar_today;
+
+
+        $order = $user->order()->create(['discount_id' => $code->id, 'date' => carbon::now(), 'price' => $price]);
+
+        $payment_token = $this->PayMobIntegration($user,$order);
+
+        return redirect('https://accept.paymob.com/api/acceptance/iframes/313615?payment_token=' . $payment_token);
+
+    }
+
+    public function PayMobIntegration($user,$order){
         $response = Http::post('https://accept.paymob.com/api/auth/tokens', [
             'api_key' => 'ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2TVRNNU9EVXlMQ0p1WVcxbElqb2lhVzVwZEdsaGJDSjkuQkN3akV6RkNKTDFnRzVCZDFucHRoOXkzUy1CUmdPYVFFYVh6MEE3YVpNLWt2UndiNzBIeDhwdWstUlFnNWRJc2RnUnVpbllTMmlTd3VrOXliTVBpSVE=',
 
@@ -38,17 +50,17 @@ class PayController extends Controller
         $token = $response->token; //access key
 
 
-        $items=[];
+        $items = [];
         $response = Http::post('https://accept.paymob.com/api/ecommerce/orders', [
             'auth_token' => $token,
             'delivery_needed' => false,
-            'amount_cents' => 100,
-            'items' =>$items
+            'amount_cents' => (int)($order->price * 100),
+            'items' => $items
         ]);
 
-      //  dd($response->body());
+        //  dd($response->body());
 
-        $billing=[
+        $billing = [
 
             'apartment' => "NA",
             'email' => $user->email,
@@ -66,12 +78,16 @@ class PayController extends Controller
 
 
         ];
+        //   dd($response->body());
+        $response = json_decode($response); // Using this you can access any key like below
+        $id = $response->id; //access key
+
 
         $response = Http::post('https://accept.paymob.com/api/acceptance/payment_keys', [
             'auth_token' => $token,
             'expiration' => 3600,
-            'amount_cents' => 100,
-            'order_id' => 84076421,
+            'amount_cents' => (int)($order->price * 100),
+            'order_id' => $id,
             'billing_data' => $billing,
             'currency' => "EGP",
             'integration_id' => 1589290
@@ -82,19 +98,20 @@ class PayController extends Controller
         $response = json_decode($response); // Using this you can access any key like below
         $payment_token = $response->token; //access key
 
-          return redirect('https://accept.paymob.com/api/acceptance/iframes/313615?payment_token='.$payment_token);
-
-
-
-
+        return $payment_token;
 
     }
 
-    public function pay(){
+    public function pay()
+    {
 
     }
-    public function state(){
 
+    public function state(Request $request)
+    {
+       //   dd($request->all());
+
+        return view('template.thankyou');
     }
 
 

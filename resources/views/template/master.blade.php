@@ -33,14 +33,26 @@
             <div class="card-heading"></div>
             <div class="card-body">
                 <h2 class="title">Registration Info</h2>
+
+
                 <form method="POST" action="{{route('store.pay')}}">
                     @csrf
                     <div class="input-group">
                         <input class="input--style-3" type="text" placeholder="First Name" name="FirstName">
                     </div>
+                    <span style="color: red">
+@error('FirstName'){{$message}}
+                        @enderror
+
+                    </span>
                     <div class="input-group">
                         <input class="input--style-3" type="text" placeholder="Second Name" name="SecondName">
                     </div>
+                    <span style="color: red">
+@error('SecondName'){{$message}}
+                        @enderror
+
+                    </span>
 {{--                    <div class="input-group">--}}
 {{--                        <input class="input--style-3 js-datepicker" type="text" placeholder="Birthdate" name="birthday">--}}
 {{--                        <i class="zmdi zmdi-calendar-note input-icon js-btn-calendar"></i>--}}
@@ -59,9 +71,19 @@
                     <div class="input-group">
                         <input class="input--style-3" type="email" placeholder="Email" name="email">
                     </div>
+                    <span style="color: red">
+@error('email'){{$message}}
+                        @enderror
+
+                    </span>
                     <div class="input-group">
                         <input class="input--style-3" type="text" placeholder="Phone" name="phone">
                     </div>
+                    <span style="color: red">
+@error('phone'){{$message}}
+                        @enderror
+
+                    </span>
                     <div class="input-group">
                         <input class="input--style-3" type="text" placeholder="PromoCode" name="promocode">
                     </div>
